@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tic Tac Toe</title>
+
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap");
+
+      body {
+        font-family: "Orbitron", Arial, sans-serif;
+        text-align: center;
+        background: linear-gradient(135deg, #0a1419 0%, #1b333e 100%);
+        min-height: 100vh;
+        color: #20ffe7;
+        letter-spacing: 1px;
+      }
+      h1 {
+        text-shadow: 0 0 5px #20ffe7, 0 0 10px #ff00cc, 0 0 20px #20ffe7,
+          0 0 40px #ff00cc;
+        font-size: 2.4em;
+        margin-top: 32px;
+      }
+      .game-board {
+        background: rgba(30, 8, 47, 0.7);
+        border-radius: 18px;
+        box-shadow: 0 0 18px #20ffe7, 0 0 64px #ff00cc44;
+        display: grid;
+        grid-template-columns: repeat(3, 100px);
+        grid-template-rows: repeat(3, 100px);
+        gap: 10px;
+        margin: 36px auto 24px auto;
+        padding: 20px 15px;
+        width: max-content;
+        position: relative;
+        border: 2px solid #ff00cc;
+        animation: glow-board 2.5s infinite alternate;
+      }
+      @keyframes glow-board {
+        from {
+          box-shadow: 0 0 18px #20ffe7, 0 0 64px #ff00cc44;
+          border-color: #ff00cc;
+        }
+        to {
+          box-shadow: 0 0 32px #20ffe7cc, 0 0 80px #ff00ccaa;
+          border-color: #20ffe7;
+        }
+      }
+      .cell {
+        border: 2.5px solid #20ffe7;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.8em;
+        cursor: pointer;
+        user-select: none;
+        background: linear-gradient(135deg, #21263b 60%, #301e3a 100%);
+        color: #ff00cc;
+        transition: background 0.3s, box-shadow 0.3s,
+          transform 0.13s cubic-bezier(0.55, -0.6, 0.61, 1.6), color 0.3s;
+        box-shadow: 0 0 10px #20ffe740, 0 0 0px #ff00cc00;
+        position: relative;
+        overflow: hidden;
+      }
+      .cell:hover {
+        background: linear-gradient(135deg, #350053 60%, #20ffe7 100%);
+        color: #0f2027;
+        transform: scale(1.08) rotate(-2deg);
+        box-shadow: 0 0 25px #ff00cc88, 0 0 30px #20ffe778;
+        z-index: 1;
+      }
+      .cell::after {
+        content: "";
+        display: block;
+        position: absolute;
+        left: -30%;
+        top: -30%;
+        width: 160%;
+        height: 160%;
+        background: radial-gradient(
+          circle,
+          #ff00cc22 0%,
+          #20ffe71a 90%,
+          transparent 100%
+        );
+        pointer-events: none;
+        opacity: 0.5;
+        z-index: 0;
+        transition: opacity 0.27s;
+      }
+      .cell:active {
+        animation: cyber-press 0.15s linear;
+      }
+
+      @keyframes cyber-press {
+        0% {
+          box-shadow: 0 0 40px #20ffe7, 0 0 16px #ff00cc;
+          background: #310035;
+        }
+        100% {
+          box-shadow: 0 0 10px #ff00cc88, 0 0 32px #20ffe788;
+        }
+      }
+
+      .cell.X,
+      .cell.O {
+        animation: pop-in 0.32s cubic-bezier(0.55, -0.6, 0.61, 1.6);
+        font-size: 2.8em;
+        text-shadow: 0 0 22px #20ffe7, 0 0 8px #ff00cc;
+      }
+
+      .cell.X {
+        color: #20ffe7;
+        text-shadow: 0 0 18px #20ffe7, 0 0 8px #ff00cc;
+      }
+      .cell.O {
+        color: #ff00cc;
+        text-shadow: 0 0 18px #ff00cc, 0 0 8px #20ffe7;
+      }
+
+      @keyframes pop-in {
+        0% {
+          transform: scale(0.5) rotate(-25deg);
+          opacity: 0.25;
+        }
+        85% {
+          transform: scale(1.1) rotate(3deg);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(1) rotate(0deg);
+        }
+      }
+
+      #status {
+        margin-top: 24px;
+        font-size: 1.2em;
+        font-family: "Orbitron", Arial, sans-serif;
+        color: #93f3f5;
+        text-shadow: 0 0 12px #20ffe7, 0 0 5px #ff00cc;
+        padding: 12px 32px;
+        border-radius: 8px;
+        background: rgba(32, 255, 231, 0.05);
+        box-shadow: 0 0 15px #20ffe733;
+        display: inline-block;
+        border: 1.5px solid #ff00cc66;
+        letter-spacing: 2px;
+        animation: glow-status 2.8s infinite alternate;
+      }
+      @keyframes glow-status {
+        from {
+          box-shadow: 0 0 6px #ff00cc22, 0 0 18px #20ffe722;
+        }
+        to {
+          box-shadow: 0 0 16px #20ffe7, 0 0 32px #ff00cc44;
+        }
+      }
+
+      /* Reset button style */
+      .reset-btn {
+        margin-top: 22px;
+        padding: 12px 36px;
+        font-size: 1.11em;
+        border-radius: 10px;
+        font-family: "Orbitron", Arial, sans-serif;
+        background: linear-gradient(135deg, #ff00cc 40%, #20ffe7 100%);
+        color: #14001c;
+        border: 2.5px solid #20ffe7;
+        cursor: pointer;
+        box-shadow: 0 0 15px #ff00cc88, 0 0 25px #20ffe755;
+        text-shadow: 0 0 5px #fff, 0 0 2px #ff00cc;
+        transition: background 0.18s, color 0.18s, transform 0.14s,
+          box-shadow 0.22s;
+      }
+      .reset-btn:hover {
+        background: linear-gradient(135deg, #20ffe7 40%, #ff00cc 100%);
+        color: #0a0016;
+        transform: scale(1.06) rotate(-2deg);
+        box-shadow: 0 0 35px #20ffe7, 0 0 48px #ff00cc;
+        border-color: #ff00cc;
+      }
+      .reset-btn:active {
+        background: #14001c;
+        color: #ff00cc;
+        box-shadow: 0 0 10px #ff00cc, 0 0 15px #20ffe7;
+      }
+
+      /* Highlight winning cells */
+      .cell.winner {
+        background: linear-gradient(135deg, #8000ff 40%, #20ffe7 100%);
+        box-shadow: 0 0 30px #ff00cc, 0 0 50px #20ffe7, 0 0 70px #ff00cc;
+        border-color: #20ffe7;
+        animation: winner-glow 1.5s infinite alternate;
+      }
+
+      @keyframes winner-glow {
+        from {
+          box-shadow: 0 0 20px #ff00cc, 0 0 40px #20ffe7, 0 0 60px #ff00cc;
+        }
+        to {
+          box-shadow: 0 0 40px #6200ff, 0 0 70px #20ff88, 0 0 90px #b300ff;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Tic Tac Toe</h1>
+    <div class="game-board">
+      <div class="cell" onclick="makeMove(0)"></div>
+      <div class="cell" onclick="makeMove(1)"></div>
+      <div class="cell" onclick="makeMove(2)"></div>
+      <div class="cell" onclick="makeMove(3)"></div>
+      <div class="cell" onclick="makeMove(4)"></div>
+      <div class="cell" onclick="makeMove(5)"></div>
+      <div class="cell" onclick="makeMove(6)"></div>
+      <div class="cell" onclick="makeMove(7)"></div>
+      <div class="cell" onclick="makeMove(8)"></div>
+    </div>
+
+    <p id="status">Player X's turn</p>
+    <script>
+      // Game state variables
+      let board = ["", "", "", "", "", "", "", "", ""];
+      let currentPlayer = "X";
+      let gameActive = true;
+
+      // Winning combinations: rows, columns, diagonals
+      const winCombos = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+      ];
+
+      function checkWin() {
+        for (let combo of winCombos) {
+          const [a, b, c] = combo;
+          if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+            return { winner: board[a], combo: combo }; // Return winner and winning combo
+          }
+        }
+        return null;
+      }
+
+      function isBoardFull() {
+        return board.every((cell) => cell);
+      }
+
+      function highlightWinCombo(combo) {
+        combo.forEach((index) => {
+          document
+            .getElementsByClassName("cell")
+            [index].classList.add("winner");
+        });
+      }
+
+      function makeMove(index) {
+        if (!gameActive) return;
+        if (board[index]) return; // Ignore clicks on filled cells
+
+        // Update game state
+        board[index] = currentPlayer;
+        document.getElementsByClassName("cell")[index].textContent =
+          currentPlayer;
+
+        // Check for win or draw
+        const winResult = checkWin();
+        if (winResult) {
+          document.getElementById(
+            "status"
+          ).textContent = `Player ${winResult.winner} wins!`;
+          highlightWinCombo(winResult.combo);
+          gameActive = false;
+          return;
+        } else if (isBoardFull()) {
+          document.getElementById("status").textContent = "It's a draw!";
+          gameActive = false;
+          return;
+        }
+
+        // Switch player
+        currentPlayer = currentPlayer === "X" ? "O" : "X";
+        document.getElementById(
+          "status"
+        ).textContent = `Player ${currentPlayer}'s turn`;
+      }
+
+      // Add a reset function
+      function resetBoard() {
+        for (let i = 0; i < board.length; i++) {
+          board[i] = "";
+          document.getElementsByClassName("cell")[i].textContent = "";
+          document.getElementsByClassName("cell")[i].classList.remove("winner");
+        }
+        currentPlayer = "X";
+        document.getElementById("status").textContent = "Player X's turn";
+        gameActive = true;
+      }
+    </script>
+
+    <!-- Add Reset Button to UI -->
+    <div style="display: flex; justify-content: center; margin-top: 20px">
+      <button class="reset-btn" onclick="resetBoard()">Reset Game</button>
+    </div>
+  </body>
+</html>
